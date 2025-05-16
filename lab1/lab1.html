@@ -1,1 +1,54 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Калькулятор теплоти згоряння палива</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
+    label, input { display: block; margin: 10px 0; }
+    input[type="number"] { width: 100%; padding: 5px; }
+    button { padding: 10px 15px; margin-top: 15px; }
+    .result { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h2>Калькулятор теплоти згоряння палива</h2>
+
+<label>Вміст вологи, W (%)</label>
+<input type="number" id="moisture" step="0.01">
+
+<label>Вміст золи, A (%)</label>
+<input type="number" id="ash" step="0.01">
+
+<label>Нижча теплота згоряння робочої маси, Qрнр (кДж/кг)</label>
+<input type="number" id="qpr" step="1">
+
+<button onclick="calculate()">Обчислити</button>
+
+<div class="result" id="output"></div>
+
+<script>
+function calculate() {
+  const W = parseFloat(document.getElementById("moisture").value);
+  const A = parseFloat(document.getElementById("ash").value);
+  const Qpr = parseFloat(document.getElementById("qpr").value);
+
+  if (isNaN(W) || isNaN(A) || isNaN(Qpr)) {
+    document.getElementById("output").innerText = "Будь ласка, введіть усі дані.";
+    return;
+  }
+
+  const Qps = Qpr / (1 - W / 100);
+  const Qpg = Qpr / ((1 - W / 100) * (1 - A / 100));
+
+  document.getElementById("output").innerHTML = `
+    Нижча теплота згоряння сухої маси (Qрнс): ${Qps.toFixed(2)} кДж/кг<br>
+    Нижча теплота згоряння горючої маси (Qрнг): ${Qpg.toFixed(2)} кДж/кг
+  `;
+}
+</script>
+
+</body>
+</html>
 
