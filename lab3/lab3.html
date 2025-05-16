@@ -1,1 +1,254 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор прибутку СЕС</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0f7fa; /* Light Teal */
+            color: #263238; /* Dark Blue Gray */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 500px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #00897b; /* Teal Accent */
+        }
+        label {
+            display: block;
+            margin: 18px 0 8px;
+            font-weight: 600;
+            color: #37474f; /* Blue Gray */
+        }
+        input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #b2dfdb; /* Light Teal Border */
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #00897b; /* Teal Accent */
+            color: white;
+            border: none;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #00695c; /* Darker Teal */
+        }
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e0f2f1; /* Light Teal Background */
+            border-radius: 8px;
+            border: 1px solid #b2dfdb; /* Light Teal Border */
+        }
+        .result-container h2 {
+            color: #00897b; /* Teal Accent */
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .result-item {
+            font-size: 16px;
+            color: #263238; /* Dark Blue Gray */
+            margin-bottom: 10px;
+        }
+        .result-item strong {
+            font-weight: bold;
+            color: #00897b; /* Teal Accent */
+        }
+        #resultsTabButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #00897b; /* Teal Accent */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            z-index: 1000;
+        }
+        #resultsTabButton:hover {
+            background-color: #00695c; /* Darker Teal */
+        }
+        #resultsTab {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        #resultsTabContent {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+        }
+        #closeResultsTab {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: #757575;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        #closeResultsTab:hover {
+            color: #263238; /* Dark Blue Gray */
+        }
+        .all-results-title {
+            text-align: center;
+            color: #00897b; /* Teal Accent */
+            margin-bottom: 20px;
+        }
+        .single-result {
+            border-bottom: 1px solid #e0f2f1; /* Light Teal Divider */
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .single-result:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <button id="resultsTabButton">Переглянути результати</button>
 
+    <div id="resultsTab">
+        <div id="resultsTabContent">
+            <button id="closeResultsTab">&times;</button>
+            <h2 class="all-results-title">Усі розрахунки</h2>
+            <div id="allResults">
+                </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Калькулятор прибутку СЕС</h1>
+        <label for="power">Потужність станції (кВт):</label>
+        <input type="number" id="power" placeholder="Напр. 10">
+
+        <label for="insolation">Середня інсоляція (год/день):</label>
+        <input type="number" id="insolation" placeholder="Напр. 4.5">
+
+        <label for="days">Кількість днів:</label>
+        <input type="number" id="days" placeholder="Напр. 30">
+
+        <label for="efficiency">ККД станції (0–1):</label>
+        <input type="number" step="0.01" id="efficiency" placeholder="Напр. 0.85">
+
+        <label for="tariff">Тариф (грн/кВт·год):</label>
+        <input type="number" step="0.01" id="tariff" placeholder="Напр. 6.5">
+
+        <button onclick="calculateProfit()">Розрахувати прибуток</button>
+        <div class="result-container">
+            <h2>Результат розрахунку</h2>
+            <div class="result" id="currentResult"></div>
+        </div>
+    </div>
+
+    <script>
+        let allCalculations = [];
+        const allResultsDiv = document.getElementById("allResults");
+        const resultsTab = document.getElementById("resultsTab");
+        const resultsTabButton = document.getElementById("resultsTabButton");
+        const closeResultsTab = document.getElementById("closeResultsTab");
+
+        function calculateProfit() {
+            const power = parseFloat(document.getElementById("power").value);
+            const insolation = parseFloat(document.getElementById("insolation").value);
+            const days = parseFloat(document.getElementById("days").value);
+            const efficiency = parseFloat(document.getElementById("efficiency").value);
+            const tariff = parseFloat(document.getElementById("tariff").value);
+            const resultDiv = document.getElementById("currentResult");
+
+            if (isNaN(power) || isNaN(insolation) || isNaN(days) || isNaN(efficiency) || isNaN(tariff)) {
+                resultDiv.innerText = "Будь ласка, заповніть усі поля правильно.";
+                return;
+            }
+
+            const profit = power * insolation * days * efficiency * tariff;
+            const formattedProfit = profit.toFixed(2);
+            resultDiv.innerText = `Очікуваний прибуток: ${formattedProfit} грн`;
+
+            // Збереження результату
+            const calculationDetails = {
+                power: power,
+                insolation: insolation,
+                days: days,
+                efficiency: efficiency,
+                tariff: tariff,
+                profit: formattedProfit
+            };
+            allCalculations.push(calculationDetails);
+            updateAllResultsTab();
+        }
+
+        function updateAllResultsTab() {
+            allResultsDiv.innerHTML = ""; // Очищаємо попередні результати
+            allCalculations.forEach((calc, index) => {
+                const resultItem = document.createElement("div");
+                resultItem.classList.add("single-result");
+                resultItem.innerHTML = `
+                    <strong>Розрахунок №${index + 1}</strong><br>
+                    Потужність: <strong>${calc.power} кВт</strong><br>
+                    Інсоляція: <strong>${calc.insolation} год/день</strong><br>
+                    Кількість днів: <strong>${calc.days}</strong><br>
+                    ККД: <strong>${(calc.efficiency * 100).toFixed(0)}%</strong><br>
+                    Тариф: <strong>${calc.tariff} грн/кВт·год</strong><br>
+                    Прибуток: <strong>${calc.profit} грн</strong>
+                `;
+                allResultsDiv.appendChild(resultItem);
+            });
+        }
+
+        resultsTabButton.addEventListener("click", () => {
+            resultsTab.style.display = "flex";
+        });
+
+        closeResultsTab.addEventListener("click", () => {
+            resultsTab.style.display = "none";
+        });
+
+        // Закриття вкладки результатів при кліку за її межами
+        window.addEventListener("click", (event) => {
+            if (event.target === resultsTab) {
+                resultsTab.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
