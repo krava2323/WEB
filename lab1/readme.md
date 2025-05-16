@@ -7,5 +7,5 @@
 [lab1](lab1/lab1.html)
 
 ## РЕЗУЛЬТАТ
-[lab1](lab1/1.png)
+![Результат](lab1/1.png)
 
