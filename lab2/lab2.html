@@ -1,1 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Калькулятор викидів твердих частинок</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 800px; margin: auto; }
+    label { display: block; margin-top: 15px; }
+    input { padding: 5px; width: 100%; max-width: 300px; }
+    button { margin-top: 20px; padding: 10px 20px; }
+    .result { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Калькулятор викидів твердих частинок</h1>
+
+  <label>Обсяг спаленого вугілля (т):</label>
+  <input type="number" id="coalMass" value="1096363">
+
+  <label>Обсяг спаленого мазуту (т):</label>
+  <input type="number" id="oilMass" value="70945">
+
+  <label>Обсяг використаного природного газу (тис. м³):</label>
+  <input type="number" id="gasVolume" value="84762">
+
+  <button onclick="calculate()">Розрахувати</button>
+
+  <div class="result" id="output"></div>
+
+  <script>
+    function calculate() {
+      const QrCoal = 20.47;
+      const QrOil = 40.40;
+      const QrGas = 33.08;
+
+      const kCoal = 150;
+      const kOil = 0.57;
+      const kGas = 0;
+
+      const mCoal = parseFloat(document.getElementById("coalMass").value);
+      const mOil = parseFloat(document.getElementById("oilMass").value);
+      const vGas = parseFloat(document.getElementById("gasVolume").value);
+
+      const ECoal = mCoal * QrCoal;    
+      const EOil = mOil * QrOil;       
+      const EGas = vGas * QrGas;        
+
+      const GCoal = (kCoal * ECoal) / 1e6;
+      const GOil = (kOil * EOil) / 1e6;
+      const GGas = (kGas * EGas) / 1e6;
+
+      const totalEmissions = GCoal + GOil + GGas;
+
+      document.getElementById("output").innerHTML = `
+        <p>Валовий викид при спалюванні вугілля: <strong>${GCoal.toFixed(2)} т</strong></p>
+        <p>Валовий викид при спалюванні мазуту: <strong>${GOil.toFixed(2)} т</strong></p>
+        <p>Валовий викид при спалюванні природного газу: <strong>${GGas.toFixed(2)} т</strong></p>
+        <hr>
+        <p>Загальні викиди: <strong>${totalEmissions.toFixed(2)} т</strong></p>
+      `;
+    }
+  </script>
+</body>
+</html>
 
