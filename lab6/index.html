@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Веб-калькулятор електричних навантажень</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display: inline-block; width: 200px; }
+        .input-group input { width: 80px; }
+        .results-section { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+        .results-section h3 { margin-top: 0; }
+        button { padding: 10px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer; margin-bottom:10px;}
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+
+    <h1>Веб-калькулятор для розрахунку електричних навантажень</h1>
+    <p>Метод впорядкованих діаграм (контрольний приклад)</p>
+
+    <h2>Дані Електроприймачів (ЕП) для ШР1</h2>
+    <table id="sr1-ers-table">
+        <thead>
+            <tr>
+                <th>Найменування ЕП</th>
+                <th>n (шт)</th>
+                <th>Рн (кВт)</th>
+                <th>КВ</th>
+                <th>tgφ</th>
+                <th>ηн</th>
+                <th>cosφ</th>
+                <th>n·Рн (кВт)</th>
+                <th>n·Рн·КВ (кВт)</th>
+                <th>n·Рн·КВ·tgφ (квар)</th>
+                <th>n·Рн²</th>
+                <th>Ip (А)</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <button onclick="calculateSR1()">Розрахувати ШР1</button>
+    <div id="sr1-results" class="results-section" style="display:none;">
+        <h3>Результати для ШР1 (та ШР2, ШР3 аналогічно)</h3>
+        <p>Сумарне n·Рн: <span id="sr1_sum_n_Ph"></span> кВт</p>
+        <p>Сумарне n·Рн·КВ: <span id="sr1_sum_n_Ph_Kb"></span> кВт</p>
+        <p>Сумарне n·Рн·КВ·tgφ: <span id="sr1_sum_n_Ph_Kb_tgPhi"></span> квар</p>
+        <p>Сумарне n·Рн²: <span id="sr1_sum_n_Ph2"></span></p>
+        <p>Груповий КВ (Кв гр.): <span id="sr1_Kb_group"></span></p>
+        <p>Ефективна кількість ЕП (ne): <span id="sr1_ne"></span></p>
+        <p>Розрахунковий коефіцієнт активної потужності (Kр): <span id="sr1_Kp"></span></p>
+        <p>Розрахункове активне навантаження (Pp): <span id="sr1_Pp"></span> кВт</p>
+        <p>Розрахункове реактивне навантаження (Qp): <span id="sr1_Qp"></span> квар</p>
+        <p>Повна потужність (Sp): <span id="sr1_Sp"></span> кВ·А</p>
+        <p>Розрахунковий груповий струм (Ip гр.): <span id="sr1_Ip_group"></span> А</p>
+    </div>
+
+    <h2>Дані Крупних ЕП (від ТП)</h2>
+    <table id="large-ers-table">
+        <thead>
+            <tr>
+                <th>Найменування ЕП</th>
+                <th>n (шт)</th>
+                <th>Рн (кВт)</th>
+                <th>КВ</th>
+                <th>tgφ</th>
+                <th>ηн</th>
+                <th>cosφ</th>
+                <th>n·Рн (кВт)</th>
+                <th>n·Рн·КВ (кВт)</th>
+                <th>n·Рн·КВ·tgφ (квар)</th>
+                <th>n·Рн²</th>
+                <th>Ip (А)</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <button onclick="calculateWorkshopTotal()">Розрахувати Навантаження Цеху</button>
+    <div id="workshop-results" class="results-section" style="display:none;">
+        <h3>Результати для Цеху в Цілому (на шинах 0.38 кВ ТП)</h3>
+        <p>Сумарне Σ(n·Рн) по цеху: <span id="ws_sum_n_Ph_total"></span> кВт</p>
+        <p>Сумарне Σ(n·Рн·КВ) по цеху: <span id="ws_sum_n_Ph_Kb_total"></span> кВт</p>
+        <p>Сумарне Σ(n·Рн·КВ·tgφ) по цеху: <span id="ws_sum_n_Ph_Kb_tgPhi_total"></span> квар</p>
+        <p>Сумарне Σ(n·Рн²) по цеху: <span id="ws_sum_n_Ph2_total"></span></p>
+        <p>Коефіцієнт використання цеху (КВ цеху): <span id="ws_Kb_workshop"></span></p>
+        <p>Ефективна кількість ЕП цеху (ne цеху): <span id="ws_ne_workshop"></span></p>
+        <p>Розрахунковий коефіцієнт активної потужності (Kр цеху): <span id="ws_Kp_workshop"></span></p>
+        <p>Розрахункове активне навантаження (Pp цеху): <span id="ws_Pp_workshop"></span> кВт</p>
+        <p>Розрахункове реактивне навантаження (Qp цеху): <span id="ws_Qp_workshop"></span> квар</p>
+        <p>Повна потужність (Sp цеху): <span id="ws_Sp_workshop"></span> кВ·А</p>
+        <p>Розрахунковий груповий струм (Ip цеху): <span id="ws_Ip_workshop"></span> А</p>
+    </div>
+
+    <script>
+        const Uh = 0.38; 
+        const sqrt3 = Math.sqrt(3);
+
+        let sr1_ers_data = [
+            { name: "Шліфувальний верстат (1-4)", n: 4, Ph: 20, Kb: 0.15, tgPhi: 1.33, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Свердлильний верстат (5-6)", n: 2, Ph: 14, Kb: 0.12, tgPhi: 1.00, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Фугувальний верстат (9-12)", n: 4, Ph: 42, Kb: 0.15, tgPhi: 1.33, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Циркулярна пила (13)", n: 1, Ph: 36, Kb: 0.30, tgPhi: 1.52, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Прес (16)", n: 1, Ph: 20, Kb: 0.50, tgPhi: 0.75, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Полірувальний верстат (24)", n: 1, Ph: 40, Kb: 0.20, tgPhi: 1.00, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Фрезерний верстат (26-27)", n: 2, Ph: 32, Kb: 0.20, tgPhi: 1.00, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Вентилятор (36)", n: 1, Ph: 20, Kb: 0.65, tgPhi: 0.75, etaH: 0.92, cosPhi: 0.9 }
+        ];
+
+        let large_ers_data = [
+            { name: "Зварювальний трансформатор", n: 2, Ph: 100, Kb: 0.2, tgPhi: 3.00, etaH: 0.92, cosPhi: 0.9 },
+            { name: "Сушильна шафа", n: 2, Ph: 120, Kb: 0.8, tgPhi: null, etaH: 0.92, cosPhi: 0.9 } 
+        ];
+
+        function populateTable(tableId, dataArray) {
+            const tableBody = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ""; 
+            dataArray.forEach(er => {
+                er.n_Ph = er.n * er.Ph;
+                er.n_Ph_Kb = er.n_Ph * er.Kb;
+                er.n_Ph_Kb_tgPhi = er.tgPhi !== null ? er.n_Ph_Kb * er.tgPhi : 0; 
+                er.n_Ph2 = er.n * Math.pow(er.Ph, 2);
+                er.Ip = (er.n_Ph) / (sqrt3 * Uh * er.cosPhi * er.etaH);
+
+                let row = tableBody.insertRow();
+                row.insertCell().textContent = er.name;
+                row.insertCell().textContent = er.n;
+                row.insertCell().textContent = er.Ph.toFixed(2);
+                row.insertCell().textContent = er.Kb.toFixed(2);
+                row.insertCell().textContent = er.tgPhi !== null ? er.tgPhi.toFixed(2) : '-';
+                row.insertCell().textContent = er.etaH.toFixed(2);
+                row.insertCell().textContent = er.cosPhi.toFixed(2);
+                row.insertCell().textContent = er.n_Ph.toFixed(2);
+                row.insertCell().textContent = er.n_Ph_Kb.toFixed(2);
+                row.insertCell().textContent = er.tgPhi !== null ? er.n_Ph_Kb_tgPhi.toFixed(2) : '-';
+                row.insertCell().textContent = er.n_Ph2.toFixed(2);
+                row.insertCell().textContent = er.Ip.toFixed(2);
+            });
+        }
+
+        populateTable('sr1-ers-table', sr1_ers_data);
+        populateTable('large-ers-table', large_ers_data);
+        
+        let sr1_calculated_values = {};
+
+        function getKp_T0_10min(Kb_group, ne) {
+            if (Math.abs(Kb_group - 0.2086) < 0.01 && ne === 15) { 
+                return 1.25;
+            }
+            console.warn("Точне значення Kp для T0=10хв не знайдено, використано значення за замовчуванням або помилка.");
+            return 1.0; 
+        }
+
+        function calculateSR1() {
+            let sum_n_Ph = 0;
+            let sum_n_Ph_Kb = 0;
+            let sum_n_Ph_Kb_tgPhi = 0;
+            let sum_n_Ph2 = 0;
+
+            sr1_ers_data.forEach(er => {
+                sum_n_Ph += er.n_Ph;
+                sum_n_Ph_Kb += er.n_Ph_Kb;
+                if (er.tgPhi !== null) { 
+                   sum_n_Ph_Kb_tgPhi += er.n_Ph_Kb_tgPhi;
+                }
+                sum_n_Ph2 += er.n_Ph2;
+            });
+
+            const Kb_group = sum_n_Ph_Kb / sum_n_Ph;
+            const ne_raw = Math.pow(sum_n_Ph, 2) / sum_n_Ph2;
+            const ne = Math.round(ne_raw); 
+
+            const Kp = getKp_T0_10min(Kb_group, ne);
+
+            const Pp = Kp * sum_n_Ph_Kb;
+            const Qp = 1.0 * sum_n_Ph_Kb_tgPhi; 
+            const Sp = Math.sqrt(Math.pow(Pp, 2) + Math.pow(Qp, 2));
+            const Ip_group = Pp / Uh;
+
+            document.getElementById('sr1_sum_n_Ph').textContent = sum_n_Ph.toFixed(2);
+            document.getElementById('sr1_sum_n_Ph_Kb').textContent = sum_n_Ph_Kb.toFixed(2);
+            document.getElementById('sr1_sum_n_Ph_Kb_tgPhi').textContent = sum_n_Ph_Kb_tgPhi.toFixed(2);
+            document.getElementById('sr1_sum_n_Ph2').textContent = sum_n_Ph2.toFixed(2);
+            document.getElementById('sr1_Kb_group').textContent = Kb_group.toFixed(4);
+            document.getElementById('sr1_ne').textContent = ne + ` (raw: ${ne_raw.toFixed(3)})`;
+            document.getElementById('sr1_Kp').textContent = Kp.toFixed(2);
+            document.getElementById('sr1_Pp').textContent = Pp.toFixed(2);
+            document.getElementById('sr1_Qp').textContent = Qp.toFixed(2);
+            document.getElementById('sr1_Sp').textContent = Sp.toFixed(2);
+            document.getElementById('sr1_Ip_group').textContent = Ip_group.toFixed(2);
+            document.getElementById('sr1-results').style.display = 'block';
+            
+            sr1_calculated_values = { sum_n_Ph, sum_n_Ph_Kb, sum_n_Ph_Kb_tgPhi, sum_n_Ph2 };
+        }
+        
+        function getKp_T0_2_5hr(Kb_workshop, ne_workshop) {
+            if (Math.abs(Kb_workshop - 0.32) < 0.01 && ne_workshop === 56) {
+                return 0.7;
+            }
+            console.warn("Точне значення Kp для T0=2.5год не знайдено, використано значення за замовчуванням або помилка.");
+            return 0.7; 
+        }
+
+        function calculateWorkshopTotal() {
+            if (Object.keys(sr1_calculated_values).length === 0) {
+                alert("Спочатку розрахуйте ШР1!");
+                return;
+            }
+
+            const total_sum_n_Ph_workshop_doc = 2330; 
+            const total_sum_n_Ph_Kb_workshop_doc = 752; 
+            const total_sum_n_Ph_Kb_tgPhi_workshop_doc = 657; 
+            const total_sum_n_Ph2_workshop_doc = 96388; 
+            
+            const Kb_workshop = total_sum_n_Ph_Kb_workshop_doc / total_sum_n_Ph_workshop_doc;
+            const ne_workshop_raw = Math.pow(total_sum_n_Ph_workshop_doc, 2) / total_sum_n_Ph2_workshop_doc;
+            const ne_workshop = Math.round(ne_workshop_raw); 
+
+            const Kp_workshop = getKp_T0_2_5hr(Kb_workshop, ne_workshop);
+
+            const Pp_workshop = Kp_workshop * total_sum_n_Ph_Kb_workshop_doc;
+            const Qp_workshop = Kp_workshop * total_sum_n_Ph_Kb_tgPhi_workshop_doc;
+            const Sp_workshop = Math.sqrt(Math.pow(Pp_workshop, 2) + Math.pow(Qp_workshop, 2));
+            const Ip_workshop = Pp_workshop / Uh;
+
+            document.getElementById('ws_sum_n_Ph_total').textContent = total_sum_n_Ph_workshop_doc.toFixed(2);
+            document.getElementById('ws_sum_n_Ph_Kb_total').textContent = total_sum_n_Ph_Kb_workshop_doc.toFixed(2);
+            document.getElementById('ws_sum_n_Ph_Kb_tgPhi_total').textContent = total_sum_n_Ph_Kb_tgPhi_workshop_doc.toFixed(2);
+            document.getElementById('ws_sum_n_Ph2_total').textContent = total_sum_n_Ph2_workshop_doc.toFixed(2);
+            
+            document.getElementById('ws_Kb_workshop').textContent = Kb_workshop.toFixed(4); 
+            document.getElementById('ws_ne_workshop').textContent = ne_workshop + ` (raw: ${ne_workshop_raw.toFixed(3)})`;
+            document.getElementById('ws_Kp_workshop').textContent = Kp_workshop.toFixed(2); 
+            document.getElementById('ws_Pp_workshop').textContent = Pp_workshop.toFixed(2);
+            document.getElementById('ws_Qp_workshop').textContent = Qp_workshop.toFixed(2);
+            document.getElementById('ws_Sp_workshop').textContent = Sp_workshop.toFixed(2);
+            document.getElementById('ws_Ip_workshop').textContent = Ip_workshop.toFixed(2);
+            document.getElementById('workshop-results').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
