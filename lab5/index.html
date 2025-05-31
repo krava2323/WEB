@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Надійності Електропостачання</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Веб-калькулятор Надійності та Збитків Електропостачання</h1>
+    </header>
+    <main>
+        <section id="reliability-comparison">
+            <h2>Порівняння надійності систем</h2>
+            <div class="input-group">
+                <h3>Одноколова система</h3>
+                <label for="lambda-single">Інтенсивність відмов лінії (λ<sub>л</sub>), 1/рік:</label>
+                <input type="number" id="lambda-single" step="any" placeholder="0.05">
+
+                <label for="mu-single">Інтенсивність відновлення лінії (μ<sub>л</sub>), 1/рік:</label>
+                <input type="number" id="mu-single" step="any" placeholder="8000">
+
+                <label for="lambda-transformer-single">Інтенсивність відмов трансформатора (λ<sub>т</sub>), 1/рік:</label>
+                <input type="number" id="lambda-transformer-single" step="any" placeholder="0.01">
+
+                <label for="mu-transformer-single">Інтенсивність відновлення трансформатора (μ<sub>т</sub>), 1/рік:</label>
+                <input type="number" id="mu-transformer-single" step="any" placeholder="800">
+            </div>
+
+            <div class="input-group">
+                <h3>Двоколова система</h3>
+                <p><em>(Параметри для кожної з двох паралельних ліній та двох трансформаторів, якщо вони ідентичні; інакше потрібні окремі поля)</em></p>
+                <label for="lambda-dual">Інтенсивність відмов однієї лінії (λ<sub>л</sub>), 1/рік:</label>
+                <input type="number" id="lambda-dual" step="any" placeholder="0.05">
+
+                <label for="mu-dual">Інтенсивність відновлення однієї лінії (μ<sub>л</sub>), 1/рік:</label>
+                <input type="number" id="mu-dual" step="any" placeholder="8000">
+                
+                <label for="lambda-transformer-dual">Інтенсивність відмов одного трансформатора (λ<sub>т</sub>), 1/рік:</label>
+                <input type="number" id="lambda-transformer-dual" step="any" placeholder="0.01">
+
+                <label for="mu-transformer-dual">Інтенсивність відновлення одного трансформатора (μ<sub>т</sub>), 1/рік:</label>
+                <input type="number" id="mu-transformer-dual" step="any" placeholder="800">
+            </div>
+            <button onclick="calculateReliability()">Розрахувати надійність</button>
+            <div id="reliability-results">
+                </div>
+        </section>
+
+        <hr>
+
+        <section id="damage-calculation">
+            <h2>Розрахунок збитків для однотрансформаторної ГТП</h2>
+            <div class="input-group">
+                <label for="outage-duration">Середній час простою (T<sub>пр</sub>), год/рік:</label>
+                <input type="number" id="outage-duration" step="any" placeholder="1.5">
+                
+                <label for="power-shortage">Середньорічний недовідпуск електроенергії (ΔW), кВт·год:</label>
+                <input type="number" id="power-shortage" step="any" placeholder="1000">
+
+                <label for="specific-damage">Питомі збитки (y<sub>0</sub>), грн/кВт·год:</label>
+                <input type="number" id="specific-damage" step="any" placeholder="2.5">
+            </div>
+            <button onclick="calculateDamage()">Розрахувати збитки</button>
+            <div id="damage-results">
+                </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 Твій Університет/Факультет</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
